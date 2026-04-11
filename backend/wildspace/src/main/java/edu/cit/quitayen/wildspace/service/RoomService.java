@@ -30,6 +30,8 @@ public class RoomService {
             request.getPricePerHour()
         );
         room.setDescription(request.getDescription());
+        room.setImageUrl(request.getImageUrl());
+        room.setAmenities(request.getAmenities());
         
         Room savedRoom = roomRepository.save(room);
         return mapToResponse(savedRoom);
@@ -84,6 +86,8 @@ public class RoomService {
         room.setLocation(request.getLocation());
         room.setPricePerHour(request.getPricePerHour());
         room.setDescription(request.getDescription());
+        room.setImageUrl(request.getImageUrl());
+        room.setAmenities(request.getAmenities());
 
         Room updatedRoom = roomRepository.save(room);
         return mapToResponse(updatedRoom);
@@ -104,7 +108,9 @@ public class RoomService {
             room.getLocation(),
             room.isAvailable(),
             room.getPricePerHour(),
-            room.getDescription()
+            room.getDescription(),
+            room.getImageUrl(),
+            room.getAmenities()
         );
     }
 }

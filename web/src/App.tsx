@@ -5,6 +5,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import BookRoom from './pages/BookRoom';
+import Rooms from './pages/Rooms';
+import RoomDetails from './pages/RoomDetails';
+import Reservations from './pages/Reservations';
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -15,6 +18,9 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
       <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
+      <Route path="/rooms" element={user ? <Rooms /> : <Navigate to="/login" replace />} />
+      <Route path="/rooms/:roomId" element={user ? <RoomDetails /> : <Navigate to="/login" replace />} />
+      <Route path="/reservations" element={user ? <Reservations /> : <Navigate to="/login" replace />} />
       <Route path="/book" element={user ? <BookRoom /> : <Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
     </Routes>

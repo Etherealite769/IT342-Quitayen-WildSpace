@@ -13,12 +13,16 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
-        val tvUserEmail = findViewById<TextView>(R.id.tvUserEmail)
+        val tvWelcomeBack = findViewById<TextView>(R.id.tvWelcomeBack)
+        val tvUserInitial = findViewById<TextView>(R.id.tvUserInitial)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
+        val btnBrowseRooms = findViewById<Button>(R.id.btnBrowseRooms)
+        val btnViewReservations = findViewById<Button>(R.id.btnViewReservations)
 
-        // Get email from intent if passed, or use dummy
-        val email = intent.getStringExtra("USER_EMAIL") ?: "student@university.edu"
-        tvUserEmail.text = "Logged in as: $email"
+        // Get email or name from intent
+        val name = intent.getStringExtra("USER_NAME") ?: "Demo Student"
+        tvWelcomeBack.text = "Welcome back, $name!"
+        tvUserInitial.text = name.take(1).uppercase()
 
         btnLogout.setOnClickListener {
             // Logout and go back to Login
