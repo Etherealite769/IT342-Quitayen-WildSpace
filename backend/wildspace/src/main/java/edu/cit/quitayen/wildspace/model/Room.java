@@ -1,5 +1,7 @@
 package edu.cit.quitayen.wildspace.model;
 
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,6 +19,8 @@ public class Room {
     private boolean available;
     private double pricePerHour;
     private String description;
+    private String imageUrl;
+    private List<String> amenities;
     private long createdAt;
 
     public Room() {
@@ -112,6 +116,22 @@ public class Room {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public List<String> getAmenities() {
+        return amenities;
+    }
+
+    public void setAmenities(List<String> amenities) {
+        this.amenities = amenities;
     }
 
     public long getCreatedAt() {

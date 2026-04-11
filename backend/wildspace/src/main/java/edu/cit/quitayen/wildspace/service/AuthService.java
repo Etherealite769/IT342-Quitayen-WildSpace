@@ -5,6 +5,7 @@ import edu.cit.quitayen.wildspace.dto.request.SignUpRequest;
 import edu.cit.quitayen.wildspace.dto.response.AuthResponse;
 import edu.cit.quitayen.wildspace.model.User;
 import edu.cit.quitayen.wildspace.repository.UserRepository;
+import edu.cit.quitayen.wildspace.security.JwtTokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

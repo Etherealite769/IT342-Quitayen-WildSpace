@@ -2,6 +2,12 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
+// Set default auth header if token exists
+const token = localStorage.getItem('token');
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
 const bookingAPI = {
   // Room endpoints
   getAllRooms: async () => {
@@ -31,20 +37,12 @@ const bookingAPI = {
       startTime,
       endTime,
       notes,
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
     });
     return response.data;
   },
 
   getUserBookings: async () => {
-    const response = await axios.get(`${API_BASE_URL}/bookings/user`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+    const response = await axios.get(`${API_BASE_URL}/bookings/user`);
     return response.data;
   },
 
@@ -59,11 +57,7 @@ const bookingAPI = {
   },
 
   cancelBooking: async (id: string) => {
-    const response = await axios.delete(`${API_BASE_URL}/bookings/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+    const response = await axios.delete(`${API_BASE_URL}/bookings/${id}`);
     return response.data;
   },
 };

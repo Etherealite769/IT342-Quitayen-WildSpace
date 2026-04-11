@@ -52,6 +52,8 @@ class LoginActivity : AppCompatActivity() {
                     runOnUiThread {
                         Toast.makeText(this@LoginActivity, "Welcome back!", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
+                        val userName = response.body()?.user?.name ?: email.split("@")[0]
+                        intent.putExtra("USER_NAME", userName)
                         intent.putExtra("USER_EMAIL", email)
                         startActivity(intent)
                         finish()

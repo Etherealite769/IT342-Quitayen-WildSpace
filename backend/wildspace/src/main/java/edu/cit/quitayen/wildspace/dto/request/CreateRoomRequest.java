@@ -28,6 +28,8 @@ public class CreateRoomRequest {
     private double pricePerHour;
     
     private String description;
+    private String imageUrl;
+    private java.util.List<String> amenities;
 
     public CreateRoomRequest() {}
 
@@ -93,5 +95,21 @@ public class CreateRoomRequest {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public java.util.List<String> getAmenities() {
+        return amenities;
+    }
+
+    public void setAmenities(java.util.List<String> amenities) {
+        this.amenities = amenities;
     }
 }

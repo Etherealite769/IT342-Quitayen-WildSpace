@@ -11,8 +11,27 @@ public class RoomResponse {
     private boolean available;
     private double pricePerHour;
     private String description;
+    private String imageUrl;
+    private java.util.List<String> amenities;
 
     public RoomResponse() {}
+
+    public RoomResponse(String id, String name, String building, int floor, int capacity, 
+                       String type, String location, boolean available, double pricePerHour, 
+                       String description, String imageUrl, java.util.List<String> amenities) {
+        this.id = id;
+        this.name = name;
+        this.building = building;
+        this.floor = floor;
+        this.capacity = capacity;
+        this.type = type;
+        this.location = location;
+        this.available = available;
+        this.pricePerHour = pricePerHour;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.amenities = amenities;
+    }
 
     public RoomResponse(String id, String name, String building, int floor, int capacity, 
                        String type, String location, boolean available, double pricePerHour, String description) {
@@ -106,5 +125,21 @@ public class RoomResponse {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public java.util.List<String> getAmenities() {
+        return amenities;
+    }
+
+    public void setAmenities(java.util.List<String> amenities) {
+        this.amenities = amenities;
     }
 }

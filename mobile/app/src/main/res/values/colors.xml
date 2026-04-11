@@ -12,4 +12,15 @@
     <color name="slate_500">#64748B</color>
     <color name="input_bg">#EDE9E3</color>
     <color name="dark_100">#1A1714</color>
+    <!-- Dashboard Colors -->
+    <color name="dashboard_bg">#F8FAFC</color>
+    <color name="blue_50">#EFF6FF</color>
+    <color name="green_50">#F0FDF4</color>
+    <color name="green_600">#16A34A</color>
+    <color name="slate_100">#F1F5F9</color>
+    <color name="slate_200">#E2E8F0</color>
+    <color name="slate_300">#CBD5E1</color>
+    <color name="slate_400">#94A3B8</color>
+    <color name="slate_700">#334155</color>
+    <color name="slate_800">#1E293B</color>
 </resources>
