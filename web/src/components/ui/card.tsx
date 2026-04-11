@@ -1,6 +1,6 @@
-import type { HTMLAttributes } from 'react';
+import { HTMLAttributes } from 'react';
 
-type CardProps = HTMLAttributes<HTMLDivElement>;
+interface CardProps extends HTMLAttributes<HTMLDivElement> {}
 
 export function Card({ className = '', ...props }: CardProps) {
   return (
