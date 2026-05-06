@@ -2,7 +2,7 @@ package edu.cit.quitayen.wildspace.features.booking;
 
 import edu.cit.quitayen.wildspace.features.booking.dto.request.CreateBookingRequest;
 import edu.cit.quitayen.wildspace.features.booking.dto.response.BookingResponse;
-import edu.cit.quitayen.wildspace.shared.security.shared.security.JwtTokenProvider;
+import edu.cit.quitayen.wildspace.shared.security.JwtTokenProvider;
 import edu.cit.quitayen.wildspace.features.booking.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

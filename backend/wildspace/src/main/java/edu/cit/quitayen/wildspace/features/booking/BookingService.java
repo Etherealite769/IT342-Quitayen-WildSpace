@@ -3,9 +3,9 @@ package edu.cit.quitayen.wildspace.features.booking;
 import edu.cit.quitayen.wildspace.features.booking.dto.request.CreateBookingRequest;
 import edu.cit.quitayen.wildspace.features.booking.dto.response.BookingResponse;
 import edu.cit.quitayen.wildspace.features.booking.Booking;
-import edu.cit.quitayen.wildspace.features.booking.Room;
+import edu.cit.quitayen.wildspace.features.rooms.Room;
 import edu.cit.quitayen.wildspace.features.booking.BookingRepository;
-import edu.cit.quitayen.wildspace.features.booking.RoomRepository;
+import edu.cit.quitayen.wildspace.features.rooms.RoomRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

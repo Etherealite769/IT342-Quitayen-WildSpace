@@ -1,7 +1,7 @@
 package edu.cit.quitayen.wildspace.shared.config;
 
-import edu.cit.quitayen.wildspace.features.auth.Room;
-import edu.cit.quitayen.wildspace.features.auth.RoomRepository;
+import edu.cit.quitayen.wildspace.features.rooms.Room;
+import edu.cit.quitayen.wildspace.features.rooms.RoomRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
