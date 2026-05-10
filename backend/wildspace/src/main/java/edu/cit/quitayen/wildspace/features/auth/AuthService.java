@@ -44,7 +44,8 @@ public class AuthService {
             user.getId(),
             user.getEmail(),
             fullName,
-            user.getStudentId()
+            user.getStudentId(),
+            user.getRole()
         );
 
         return new AuthResponse(token, userDto);
@@ -83,7 +84,8 @@ public class AuthService {
             savedUser.getId(),
             savedUser.getEmail(),
             request.getFullName(),
-            savedUser.getStudentId()
+            savedUser.getStudentId(),
+            savedUser.getRole()
         );
 
         return new AuthResponse(token, userDto);

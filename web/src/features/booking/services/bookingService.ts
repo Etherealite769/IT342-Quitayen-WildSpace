@@ -60,6 +60,32 @@ const bookingAPI = {
     const response = await axios.delete(`${API_BASE_URL}/bookings/${id}`);
     return response.data;
   },
+
+  getAllBookings: async () => {
+    const response = await axios.get(`${API_BASE_URL}/bookings`);
+    return response.data;
+  },
+
+  // Admin room CRUD
+  createRoom: async (roomData: any) => {
+    const response = await axios.post(`${API_BASE_URL}/rooms`, roomData);
+    return response.data;
+  },
+
+  updateRoom: async (id: string, roomData: any) => {
+    const response = await axios.put(`${API_BASE_URL}/rooms/${id}`, roomData);
+    return response.data;
+  },
+
+  deleteRoom: async (id: string) => {
+    const response = await axios.delete(`${API_BASE_URL}/rooms/${id}`);
+    return response.data;
+  },
+
+  updateBookingStatus: async (id: string, status: string) => {
+    const response = await axios.patch(`${API_BASE_URL}/bookings/${id}/status?status=${status}`);
+    return response.data;
+  },
 };
 
 export default bookingAPI;

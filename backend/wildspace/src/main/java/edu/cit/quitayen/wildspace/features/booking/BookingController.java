@@ -54,6 +54,12 @@ public class BookingController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<BookingResponse>> getAllBookings() {
+        List<BookingResponse> bookings = bookingService.getAllBookings();
+        return ResponseEntity.ok(bookings);
+    }
+
     @GetMapping("/room/{roomId}")
     public ResponseEntity<List<BookingResponse>> getRoomBookings(@PathVariable String roomId) {
         List<BookingResponse> bookings = bookingService.getRoomBookings(roomId);

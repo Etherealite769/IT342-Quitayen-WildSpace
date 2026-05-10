@@ -1,13 +1,17 @@
 package edu.cit.quitayen.wildspace.shared.config;
 
+import edu.cit.quitayen.wildspace.features.auth.User;
+import edu.cit.quitayen.wildspace.features.auth.UserRepository;
 import edu.cit.quitayen.wildspace.features.rooms.Room;
 import edu.cit.quitayen.wildspace.features.rooms.RoomRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
 public class DataSeeder {
@@ -55,6 +59,28 @@ public class DataSeeder {
 
             roomRepository.saveAll(rooms);
             System.out.println("✅ Successfully seeded " + rooms.size() + " rooms!");
+        };
+    }
+
+    @Bean
+    CommandLineRunner seedAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return args -> {
+            Optional<User> existingAdmin = userRepository.findByEmail("admin@wildspace.edu");
+            if (existingAdmin.isPresent()) {
+                System.out.println("Admin user already exists, skipping...");
+                return;
+            }
+
+            User admin = new User();
+            admin.setStudentId("ADMIN-001");
+            admin.setEmail("admin@wildspace.edu");
+            admin.setFirstName("System");
+            admin.setLastName("Administrator");
+            admin.setPasswordHash(passwordEncoder.encode("admin123"));
+            admin.setRole("ADMIN");
+
+            userRepository.save(admin);
+            System.out.println("✅ Successfully seeded admin user! (admin@wildspace.edu / admin123)");
         };
     }
 

@@ -1,13 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './shared/contexts/AuthContext';
 import { Toaster } from 'sonner';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import BookRoom from './pages/BookRoom';
-import Rooms from './pages/Rooms';
-import RoomDetails from './pages/RoomDetails';
-import Reservations from './pages/Reservations';
+import Login from './features/auth/pages/Login';
+import Register from './features/auth/pages/Register';
+import Dashboard from './features/dashboard/pages/Dashboard';
+import BookRoom from './features/booking/pages/BookRoom';
+import Rooms from './features/rooms/pages/Rooms';
+import RoomDetails from './features/rooms/pages/RoomDetails';
+import Reservations from './features/booking/pages/Reservations';
+import AdminDashboard from './features/admin/pages/AdminDashboard';
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -22,6 +23,7 @@ function AppRoutes() {
       <Route path="/rooms/:roomId" element={user ? <RoomDetails /> : <Navigate to="/login" replace />} />
       <Route path="/reservations" element={user ? <Reservations /> : <Navigate to="/login" replace />} />
       <Route path="/book" element={user ? <BookRoom /> : <Navigate to="/login" replace />} />
+      <Route path="/admin" element={user ? <AdminDashboard /> : <Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
     </Routes>
   );

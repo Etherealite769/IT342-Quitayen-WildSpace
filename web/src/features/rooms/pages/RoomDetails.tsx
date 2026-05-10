@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Building2, Users, MapPin, ArrowLeft, ChevronLeft, Calendar, Clock } from 'lucide-react';
-import bookingAPI from '../services/bookingService';
+import { useAuth } from '../../../shared/contexts/AuthContext';
+import { Building2, Users, MapPin, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
+import bookingAPI from '../../booking/services/bookingService';
 import { toast } from 'sonner';
 
 interface Room {
@@ -31,6 +31,14 @@ export default function RoomDetails() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [purpose, setPurpose] = useState('');
+
+  // Calendar view state
+  const now = new Date();
+  const [viewYear, setViewYear] = useState(now.getFullYear());
+  const [viewMonth, setViewMonth] = useState(now.getMonth());
+  const todayY = now.getFullYear();
+  const todayM = now.getMonth();
+  const todayD = now.getDate();
 
   // Generate time slots from 9 AM to 9 PM
   const timeSlots = [
@@ -121,43 +129,60 @@ export default function RoomDetails() {
     }
   };
 
-  // Generate calendar days for April 2026
-  const generateCalendarDays = () => {
-    const days = [];
-    // Previous month days
-    for (let i = 29; i <= 31; i++) {
-      days.push({ day: i, month: 'prev' });
+  const generateCalendarDays = (year: number, month: number) => {
+    const days: { day: number; month: 'prev' | 'current' | 'next' }[] = [];
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevMonthDays = new Date(year, month, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+      days.push({ day: prevMonthDays - firstDay + 1 + i, month: 'prev' });
     }
-    // Current month days
-    for (let i = 1; i <= 30; i++) {
-      days.push({ day: i, month: 'current', isToday: i === 11 });
+    for (let d = 1; d <= daysInMonth; d++) {
+      days.push({ day: d, month: 'current' });
     }
-    // Next month days
-    for (let i = 1; i <= 2; i++) {
+    const total = firstDay + daysInMonth;
+    const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+    for (let i = 1; i <= remaining; i++) {
       days.push({ day: i, month: 'next' });
     }
     return days;
   };
 
-  const calendarDays = generateCalendarDays();
+  const calendarDays = generateCalendarDays(viewYear, viewMonth);
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const handlePrevMonth = () => {
+    setViewMonth((m) => {
+      if (m === 0) { setViewYear((y) => y - 1); return 11; }
+      return m - 1;
+    });
+  };
+
+  const handleNextMonth = () => {
+    setViewMonth((m) => {
+      if (m === 11) { setViewYear((y) => y + 1); return 0; }
+      return m + 1;
+    });
+  };
 
   if (!user) return null;
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#f0f2f5' }}>
-        <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
-          <div className="max-w-6xl mx-auto px-8 h-14 flex items-center justify-between" style={{ margin: '0 auto' }}>
-            <div className="flex items-center gap-2">
-              <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Building2 className="h-4 w-4 text-white" />
+      <div className="min-h-screen" style={{ background: '#f0f2f5' }}>
+        <nav className="sticky top-0 z-50 bg-white border-b border-gray-200" style={{ height: 52 }}>
+          <div style={{ maxWidth: 1000, width: '100%', margin: '0 auto', padding: '0 32px', height: '100%', display: 'flex', alignItems: 'center' }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <div className="flex items-center justify-center text-white" style={{ width: 28, height: 28, background: '#2563eb', borderRadius: 8 }}>
+                <Building2 size={14} />
               </div>
-              <span className="text-base font-semibold text-gray-900 tracking-tight">WildSpace</span>
+              <span className="font-semibold text-gray-900" style={{ fontSize: 15, letterSpacing: '-0.01em' }}>WildSpace</span>
             </div>
           </div>
         </nav>
-        <div className="max-w-6xl mx-auto px-8 py-10 flex justify-center">
-          <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+        <div className="flex justify-center" style={{ padding: '48px 32px' }}>
+          <div className="animate-spin" style={{ width: 32, height: 32, border: '2px solid #2563eb', borderTopColor: 'transparent', borderRadius: '50%' }}></div>
         </div>
       </div>
     );
@@ -165,257 +190,244 @@ export default function RoomDetails() {
 
   if (!room) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#f0f2f5' }}>
-        <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
-          <div className="max-w-6xl mx-auto px-8 h-14 flex items-center justify-between" style={{ margin: '0 auto' }}>
-            <div className="flex items-center gap-2">
-              <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Building2 className="h-4 w-4 text-white" />
+      <div className="min-h-screen" style={{ background: '#f0f2f5' }}>
+        <nav className="sticky top-0 z-50 bg-white border-b border-gray-200" style={{ height: 52 }}>
+          <div style={{ maxWidth: 1000, width: '100%', margin: '0 auto', padding: '0 32px', height: '100%', display: 'flex', alignItems: 'center' }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <div className="flex items-center justify-center text-white" style={{ width: 28, height: 28, background: '#2563eb', borderRadius: 8 }}>
+                <Building2 size={14} />
               </div>
-              <span className="text-base font-semibold text-gray-900 tracking-tight">WildSpace</span>
+              <span className="font-semibold text-gray-900" style={{ fontSize: 15, letterSpacing: '-0.01em' }}>WildSpace</span>
             </div>
           </div>
         </nav>
-        <div className="max-w-6xl mx-auto px-8 py-10 text-center">
-          <p className="text-gray-600">Room not found</p>
-          <Link to="/rooms" className="mt-4 text-blue-600 font-medium">Back to Rooms</Link>
+        <div style={{ maxWidth: 1000, width: '100%', margin: '0 auto', padding: '48px 32px', textAlign: 'center' }}>
+          <p style={{ fontSize: 14, color: '#6b7280' }}>Room not found</p>
+          <Link to="/rooms" className="inline-block font-medium transition-colors hover:text-blue-700" style={{ marginTop: 16, fontSize: 14, color: '#2563eb', textDecoration: 'none' }}>Back to Rooms</Link>
         </div>
       </div>
     );
   }
 
+  const canConfirm = selectedDate && selectedSlot;
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f0f2f5' }}>
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-8 h-14 flex items-center justify-between" style={{ margin: '0 auto' }}>
-          {/* Brand */}
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Building2 className="h-4 w-4 text-white" />
+    <div className="min-h-screen" style={{ background: '#f0f2f5' }}>
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200" style={{ height: 52 }}>
+        <div style={{ maxWidth: 1000, width: '100%', margin: '0 auto', padding: '0 32px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <div className="flex items-center justify-center text-white" style={{ width: 28, height: 28, background: '#2563eb', borderRadius: 8 }}>
+              <Building2 size={14} />
             </div>
-            <span className="text-base font-semibold text-gray-900 tracking-tight">
-              WildSpace
-            </span>
+            <span className="font-semibold text-gray-900" style={{ fontSize: 15, letterSpacing: '-0.01em' }}>WildSpace</span>
           </div>
 
-          {/* Links */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/dashboard"
-              className="text-gray-500 hover:text-gray-800 hover:bg-gray-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
-              to="/reservations"
-              className="text-gray-500 hover:text-gray-800 hover:bg-gray-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            >
-              My Reservations
-            </Link>
-            <Link
-              to="/rooms"
-              className="text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-medium"
-            >
-              Rooms
-            </Link>
+          <div className="hidden md:flex items-center" style={{ gap: 4 }}>
+            {(user.role === 'ADMIN' || user.role === 'admin') ? (
+              <Link to="/admin" className="text-sm font-medium rounded-lg" style={{ padding: '6px 12px', color: '#2563eb', background: '#eff6ff', textDecoration: 'none' }}>Admin Dashboard</Link>
+            ) : (
+              <>
+                <Link to="/" className="text-sm font-medium rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors" style={{ padding: '6px 12px', color: '#6b7280', textDecoration: 'none' }}>Dashboard</Link>
+                <Link to="/reservations" className="text-sm font-medium rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors" style={{ padding: '6px 12px', color: '#6b7280', textDecoration: 'none' }}>My Reservations</Link>
+                <Link to="/rooms" className="text-sm font-medium rounded-lg" style={{ padding: '6px 12px', color: '#2563eb', background: '#eff6ff', textDecoration: 'none' }}>Rooms</Link>
+              </>
+            )}
           </div>
 
-          {/* User */}
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <div className="flex items-center justify-center text-white font-semibold flex-shrink-0" style={{ width: 32, height: 32, borderRadius: '50%', background: '#2563eb', fontSize: 13 }}>
               {user.fullName.charAt(0).toUpperCase()}
             </div>
-            <span className="text-sm font-medium text-gray-700 hidden sm:block">
-              {user.fullName}
-            </span>
+            <span className="hidden sm:block font-medium" style={{ fontSize: 13, color: '#6b7280' }}>{user.fullName}</span>
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-8 py-10" style={{ margin: '0 auto' }}>
-        {/* Back Button */}
+      {/* Main */}
+      <main style={{ maxWidth: 1000, width: '100%', margin: '0 auto', padding: '28px 32px 48px' }}>
+        {/* Back */}
         <button
           onClick={() => navigate('/rooms')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="inline-flex items-center font-medium border-none cursor-pointer transition-colors hover:text-gray-900"
+          style={{ gap: 6, fontSize: 13, color: '#6b7280', background: 'none', padding: 0, marginBottom: 20 }}
         >
-          <ChevronLeft className="h-5 w-5" />
-          <span className="text-sm font-medium">Back to Rooms</span>
+          <ChevronLeft size={18} />
+          Back to Rooms
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Room Details */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Room Image */}
-            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-              <div className="relative h-80 lg:h-96">
-                <img
-                  src={room.imageUrl}
-                  alt={room.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800';
-                  }}
-                />
-              </div>
+        <div className="grid" style={{ gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+          {/* LEFT */}
+          <div className="flex flex-col" style={{ gap: 16 }}>
+            {/* Image */}
+            <div className="bg-white border border-gray-200 overflow-hidden" style={{ borderRadius: 16 }}>
+              <img
+                src={room.imageUrl}
+                alt={room.name}
+                style={{ width: '100%', height: 280, objectFit: 'cover', display: 'block' }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.height = '200px';
+                  target.style.background = '#f3f4f6';
+                  target.removeAttribute('src');
+                }}
+              />
             </div>
 
-            {/* Room Info */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-8">
-              <div className="flex items-start justify-between mb-4">
+            {/* Info Card */}
+            <div className="bg-white border border-gray-200" style={{ borderRadius: 16, padding: 24 }}>
+              <div className="flex items-start justify-between" style={{ marginBottom: 12 }}>
                 <div>
-                  <h1 className="text-2xl font-semibold text-gray-900">{room.name}</h1>
-                  <p className="text-gray-500 mt-1">{room.id} • {room.type}</p>
+                  <div className="font-semibold text-gray-900" style={{ fontSize: 20 }}>{room.name}</div>
+                  <div style={{ fontSize: 13, color: '#6b7280', marginTop: 3 }}>{room.id} · {room.type}</div>
                 </div>
-                <span className="bg-gray-100 text-gray-700 text-sm font-medium px-3 py-1 rounded-full">
-                  {room.type}
-                </span>
+                <span className="font-medium" style={{ fontSize: 12, background: '#f3f4f6', color: '#6b7280', padding: '4px 10px', borderRadius: 20, whiteSpace: 'nowrap' }}>{room.type}</span>
               </div>
 
-              <p className="text-gray-600 mb-6">
-                {room.description || `A modern ${room.type.toLowerCase()} perfect for group study sessions and collaborative work.`}
+              <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.65, marginBottom: 18 }}>
+                {room.description || `A modern ${room.type.toLowerCase()} perfect for group study sessions and collaborative work. Equipped with all the tools you need for productive meetings and presentations.`}
               </p>
 
-              {/* Room Details */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="flex items-center gap-3 text-gray-600">
-                  <Users className="h-5 w-5 text-gray-400" />
-                  <span>Capacity: {room.capacity} people</span>
+              <div className="grid grid-cols-2" style={{ gap: 10, marginBottom: 18 }}>
+                <div className="flex items-center" style={{ gap: 8, fontSize: 14, color: '#6b7280' }}>
+                  <Users size={16} className="text-gray-400 flex-shrink-0" />
+                  Capacity: {room.capacity} people
                 </div>
-                <div className="flex items-center gap-3 text-gray-600">
-                  <MapPin className="h-5 w-5 text-gray-400" />
-                  <span>{room.building}, Floor {room.floor}</span>
+                <div className="flex items-center" style={{ gap: 8, fontSize: 14, color: '#6b7280' }}>
+                  <MapPin size={16} className="text-gray-400 flex-shrink-0" />
+                  {room.building}, Floor {room.floor}
                 </div>
               </div>
 
-              {/* Amenities */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Available Equipment</h3>
-                <div className="flex flex-wrap gap-2">
-                  {room.amenities?.map((amenity) => (
-                    <span
-                      key={amenity}
-                      className="bg-gray-100 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-lg"
-                    >
-                      {amenity}
-                    </span>
-                  ))}
-                </div>
+              <div className="font-semibold text-gray-900" style={{ fontSize: 13, marginBottom: 10 }}>Available equipment</div>
+              <div className="flex flex-wrap" style={{ gap: 8 }}>
+                {room.amenities?.map((amenity) => (
+                  <span key={amenity} className="font-medium" style={{ fontSize: 13, background: '#f3f4f6', color: '#374151', padding: '6px 12px', borderRadius: 8 }}>{amenity}</span>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Right Column - Booking Form */}
-          <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 sticky top-24">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Book This Room</h2>
-              <p className="text-sm text-gray-500 mb-6">Select a date and time slot</p>
+          {/* RIGHT: BOOKING */}
+          <div className="bg-white border border-gray-200" style={{ borderRadius: 16, padding: 20, position: 'sticky', top: 68 }}>
+            <div className="font-semibold text-gray-900" style={{ fontSize: 16, marginBottom: 4 }}>Book this room</div>
+            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 20 }}>Select a date and time slot</div>
 
-              <form onSubmit={handleBooking} className="space-y-6">
-                {/* Date Picker */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-900 mb-3">
-                    <Calendar className="h-4 w-4" />
-                    Select Date
-                  </label>
-                  <div className="bg-white border border-gray-200 rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <button type="button" className="p-1 hover:bg-gray-100 rounded">
-                        <ChevronLeft className="h-4 w-4 text-gray-400" />
-                      </button>
-                      <span className="text-sm font-medium text-gray-900">April 2026</span>
-                      <button type="button" className="p-1 hover:bg-gray-100 rounded">
-                        <ArrowLeft className="h-4 w-4 text-gray-400 rotate-180" />
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-                      <span className="text-gray-400">Su</span>
-                      <span className="text-gray-400">Mo</span>
-                      <span className="text-gray-400">Tu</span>
-                      <span className="text-gray-400">We</span>
-                      <span className="text-gray-400">Th</span>
-                      <span className="text-gray-400">Fr</span>
-                      <span className="text-gray-400">Sa</span>
-                    </div>
-                    <div className="grid grid-cols-7 gap-1">
-                      {calendarDays.map((day, index) => (
-                        <button
-                          key={index}
-                          type="button"
-                          onClick={() => day.month === 'current' && setSelectedDate(`2026-04-${day.day.toString().padStart(2, '0')}`)}
-                          className={`
-                            aspect-square flex items-center justify-center text-sm rounded-lg
-                            ${day.month !== 'current' ? 'text-gray-300' : 'text-gray-700 hover:bg-gray-100'}
-                            ${day.isToday ? 'bg-slate-900 text-white hover:bg-slate-800' : ''}
-                            ${selectedDate === `2026-04-${day.day.toString().padStart(2, '0')}` && !day.isToday ? 'bg-blue-100 text-blue-700' : ''}
-                          `}
-                        >
-                          {day.day}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+            <form onSubmit={handleBooking}>
+              {/* DATE */}
+              <div style={{ marginBottom: 16 }}>
+                <div className="flex items-center font-semibold text-gray-900" style={{ gap: 6, fontSize: 13, marginBottom: 8 }}>
+                  <Calendar size={14} className="text-gray-400" />
+                  Select date
                 </div>
-
-                {/* Time Slots */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-900 mb-3">
-                    <Clock className="h-4 w-4" />
-                    Available Time Slots
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {timeSlots.map((slot) => (
-                      <button
-                        key={slot}
-                        type="button"
-                        onClick={() => setSelectedSlot(slot)}
-                        className={`
-                          py-2 px-3 text-sm rounded-lg border transition-colors
-                          ${selectedSlot === slot 
-                            ? 'bg-slate-900 text-white border-slate-900' 
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'}
-                        `}
-                      >
-                        {slot}
-                      </button>
+                <div className="border border-gray-200" style={{ borderRadius: 12, padding: 12 }}>
+                  <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+                    <button type="button" onClick={handlePrevMonth} className="flex items-center justify-center border-none cursor-pointer transition-colors" style={{ padding: 4, borderRadius: 6, color: '#9ca3af', background: 'none' }}>
+                      <ChevronLeft size={14} />
+                    </button>
+                    <span className="font-semibold text-gray-900" style={{ fontSize: 13 }}>{monthNames[viewMonth]} {viewYear}</span>
+                    <button type="button" onClick={handleNextMonth} className="flex items-center justify-center border-none cursor-pointer transition-colors" style={{ padding: 4, borderRadius: 6, color: '#9ca3af', background: 'none' }}>
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-7 text-center" style={{ marginBottom: 4 }}>
+                    {['Su','Mo','Tu','We','Th','Fr','Sa'].map((d) => (
+                      <span key={d} style={{ fontSize: 11, color: '#9ca3af', padding: '3px 0' }}>{d}</span>
                     ))}
                   </div>
+                  <div className="grid grid-cols-7" style={{ gap: 2 }}>
+                    {calendarDays.map((d, i) => {
+                      const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
+                      const isToday = d.month === 'current' && viewYear === todayY && viewMonth === todayM && d.day === todayD;
+                      const isSelected = selectedDate === dateStr && d.month === 'current';
+                      const isMuted = d.month !== 'current';
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => !isMuted && setSelectedDate(dateStr)}
+                          className="flex items-center justify-center border-none cursor-pointer"
+                          style={{
+                            aspectRatio: '1',
+                            fontSize: 12,
+                            borderRadius: 6,
+                            color: isMuted ? '#9ca3af' : isToday ? '#fff' : isSelected ? '#1d4ed8' : '#111827',
+                            background: isToday ? '#1e293b' : isSelected ? '#dbeafe' : 'none',
+                            pointerEvents: isMuted ? 'none' : 'auto',
+                            transition: 'background 0.1s',
+                          }}
+                          onMouseEnter={(e) => { if (!isMuted && !isToday && !isSelected) e.currentTarget.style.background = '#f3f4f6'; }}
+                          onMouseLeave={(e) => { if (!isMuted && !isToday && !isSelected) e.currentTarget.style.background = 'none'; }}
+                        >
+                          {d.day}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
+              </div>
 
-                {/* Purpose */}
-                <div>
-                  <label className="text-sm font-medium text-gray-900 mb-2 block">
-                    Purpose of Booking
-                  </label>
-                  <textarea
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
-                    placeholder="e.g., Group study for Math exam, Team project meeting..."
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 resize-none"
-                  />
+              {/* TIME SLOTS */}
+              <div style={{ marginBottom: 16 }}>
+                <div className="flex items-center font-semibold text-gray-900" style={{ gap: 6, fontSize: 13, marginBottom: 8 }}>
+                  <Clock size={14} className="text-gray-400" />
+                  Available time slots
                 </div>
+                <div className="grid grid-cols-2" style={{ gap: 6 }}>
+                  {timeSlots.map((slot) => (
+                    <button
+                      key={slot}
+                      type="button"
+                      onClick={() => setSelectedSlot(slot)}
+                      className="font-medium cursor-pointer text-center border transition-colors"
+                      style={{
+                        padding: '7px 4px',
+                        fontSize: 12,
+                        borderRadius: 8,
+                        background: selectedSlot === slot ? '#1e293b' : '#fff',
+                        color: selectedSlot === slot ? '#fff' : '#111827',
+                        borderColor: selectedSlot === slot ? '#1e293b' : '#e5e7eb',
+                      }}
+                    >
+                      {slot}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-                {/* Confirm Button */}
-                <button
-                  type="submit"
-                  disabled={booking || !selectedDate || !selectedSlot}
-                  className={`
-                    w-full py-3 rounded-xl font-semibold text-white transition-colors
-                    ${!selectedDate || !selectedSlot || booking
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-slate-900 hover:bg-slate-800'}
-                  `}
-                >
-                  {booking ? 'Confirming...' : 'Confirm Booking'}
-                </button>
+              {/* PURPOSE */}
+              <div style={{ marginBottom: 16 }}>
+                <div className="font-semibold text-gray-900" style={{ fontSize: 13, marginBottom: 8 }}>Purpose of booking</div>
+                <textarea
+                  value={purpose}
+                  onChange={(e) => setPurpose(e.target.value)}
+                  placeholder="e.g., Group study for Math exam, Team project meeting..."
+                  rows={3}
+                  className="w-full border border-gray-200"
+                  style={{ padding: '10px 12px', borderRadius: 8, fontSize: 13, color: '#111827', background: '#fff', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5, transition: 'border-color 0.15s' }}
+                />
+              </div>
 
-                <p className="text-xs text-gray-500 text-center">
-                  By booking, you agree to follow all facility rules and regulations
-                </p>
-              </form>
-            </div>
+              {/* CONFIRM */}
+              <button
+                type="submit"
+                disabled={booking || !canConfirm}
+                className="w-full font-semibold border-none cursor-pointer transition-colors"
+                style={{
+                  padding: 12,
+                  borderRadius: 10,
+                  fontSize: 14,
+                  background: canConfirm && !booking ? '#1e293b' : '#e5e7eb',
+                  color: canConfirm && !booking ? '#fff' : '#9ca3af',
+                  cursor: canConfirm && !booking ? 'pointer' : 'not-allowed',
+                }}
+              >
+                {booking ? 'Confirming...' : 'Confirm booking'}
+              </button>
+              <p style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 10, lineHeight: 1.5 }}>
+                By booking, you agree to follow all facility rules and regulations
+              </p>
+            </form>
           </div>
         </div>
       </main>
