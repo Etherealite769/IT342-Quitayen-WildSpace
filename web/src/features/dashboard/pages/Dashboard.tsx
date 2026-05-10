@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import {
   Building2,
   Calendar,
@@ -9,7 +9,7 @@ import {
   LogOut,
   ArrowRight,
 } from 'lucide-react';
-import bookingAPI from '../services/bookingService';
+import bookingAPI from '../../booking/services/bookingService';
 import { toast } from 'sonner';
 
 interface Room {
@@ -43,7 +43,7 @@ export default function Dashboard() {
       navigate('/login');
       return;
     }
-    if (user.role === 'admin') {
+    if (user.role === 'ADMIN' || user.role === 'admin') {
       navigate('/admin');
       return;
     }
@@ -86,207 +86,155 @@ export default function Dashboard() {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f0f2f5' }}>
-
-      {/* ── Navigation ── */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-8 h-14 flex items-center justify-between" style={{ margin: '0 auto' }}>
-          {/* Brand */}
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Building2 className="h-4 w-4 text-white" />
+    <div className="min-h-screen" style={{ background: '#f0f2f5' }}>
+      {/* Nav */}
+      <nav className="sticky top-0 z-10 bg-white border-b border-gray-200" style={{ height: 52 }}>
+        <div style={{ maxWidth: 960, width: '100%', margin: '0 auto', padding: '0 32px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <div className="flex items-center justify-center text-white" style={{ width: 28, height: 28, background: '#2563eb', borderRadius: 8 }}>
+              <Building2 size={14} />
             </div>
-            <span className="text-base font-semibold text-gray-900 tracking-tight">
-              WildSpace
-            </span>
+            <span className="font-medium text-gray-900" style={{ fontSize: 14 }}>WildSpace</span>
           </div>
 
-          {/* Links */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/"
-              className="text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-medium"
-            >
-              Dashboard
-            </Link>
-            <Link
-              to="/reservations"
-              className="text-gray-500 hover:text-gray-800 hover:bg-gray-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            >
-              My Reservations
-            </Link>
-            <Link
-              to="/rooms"
-              className="text-gray-500 hover:text-gray-800 hover:bg-gray-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            >
-              Rooms
-            </Link>
+          <div className="hidden md:flex items-center" style={{ gap: 4 }}>
+            {(user.role === 'ADMIN' || user.role === 'admin') ? (
+              <Link to="/admin" className="text-sm font-medium rounded-lg" style={{ padding: '6px 12px', color: '#2563eb', background: '#eff6ff', textDecoration: 'none' }}>Admin Dashboard</Link>
+            ) : (
+              <>
+                <Link to="/" className="text-sm font-medium rounded-lg" style={{ padding: '6px 12px', color: '#2563eb', background: '#eff6ff', textDecoration: 'none' }}>Dashboard</Link>
+                <Link to="/reservations" className="text-sm font-medium rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors" style={{ padding: '6px 12px', color: '#6b7280', textDecoration: 'none' }}>My Reservations</Link>
+                <Link to="/rooms" className="text-sm font-medium rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors" style={{ padding: '6px 12px', color: '#6b7280', textDecoration: 'none' }}>Rooms</Link>
+              </>
+            )}
           </div>
 
-          {/* User */}
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <div className="flex items-center justify-center text-white font-medium flex-shrink-0" style={{ width: 32, height: 32, borderRadius: '50%', background: '#2563eb', fontSize: 13 }}>
               {user.fullName.charAt(0).toUpperCase()}
             </div>
-            <span className="text-sm font-medium text-gray-700 hidden sm:block">
-              {user.fullName}
-            </span>
+            <span className="hidden sm:block font-medium text-gray-900" style={{ fontSize: 13 }}>{user.fullName}</span>
           </div>
         </div>
       </nav>
 
-      {/* ── Main ── */}
-      <main className="max-w-6xl mx-auto px-8 py-10 space-y-8" style={{ margin: '0 auto' }}>
+      {/* Main */}
+      <main style={{ maxWidth: 960, width: '100%', margin: '0 auto', padding: '36px 32px', display: 'flex', flexDirection: 'column', gap: 28 }}>
 
         {/* Welcome */}
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Welcome back, {user.fullName}!
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Find and book your perfect study space in just a few clicks
-          </p>
+          <h1 className="font-semibold text-gray-900" style={{ fontSize: 20 }}>Welcome back, {user.fullName}!</h1>
+          <p style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>Find and book your perfect study space in just a few clicks</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Rooms</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {loading ? '—' : rooms.length}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">Available facilities</p>
-              </div>
-              <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Building2 className="h-5 w-5 text-gray-600" />
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 16 }}>
+          <div className="bg-white border border-gray-200 flex justify-between items-start" style={{ borderRadius: 12, padding: 20 }}>
+            <div>
+              <p className="font-medium" style={{ fontSize: 12, color: '#6b7280' }}>Total Rooms</p>
+              <p className="font-semibold text-gray-900" style={{ fontSize: 28, marginTop: 6 }}>{loading ? '—' : rooms.length}</p>
+              <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>Available facilities</p>
+            </div>
+            <div className="flex items-center justify-center flex-shrink-0" style={{ width: 36, height: 36, background: '#f9fafb', borderRadius: 8, color: '#6b7280' }}>
+              <Building2 size={18} />
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Your Bookings</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {loading ? '—' : activeBookings.length}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">Active reservations</p>
-              </div>
-              <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-gray-600" />
-              </div>
+          <div className="bg-white border border-gray-200 flex justify-between items-start" style={{ borderRadius: 12, padding: 20 }}>
+            <div>
+              <p className="font-medium" style={{ fontSize: 12, color: '#6b7280' }}>Your Bookings</p>
+              <p className="font-semibold text-gray-900" style={{ fontSize: 28, marginTop: 6 }}>{loading ? '—' : activeBookings.length}</p>
+              <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>Active reservations</p>
+            </div>
+            <div className="flex items-center justify-center flex-shrink-0" style={{ width: 36, height: 36, background: '#f9fafb', borderRadius: 8, color: '#6b7280' }}>
+              <Calendar size={18} />
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Users</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {loading ? '—' : rooms.length + 2}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">Currently booking</p>
-              </div>
-              <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Users className="h-5 w-5 text-gray-600" />
-              </div>
+          <div className="bg-white border border-gray-200 flex justify-between items-start" style={{ borderRadius: 12, padding: 20 }}>
+            <div>
+              <p className="font-medium" style={{ fontSize: 12, color: '#6b7280' }}>Active Users</p>
+              <p className="font-semibold text-gray-900" style={{ fontSize: 28, marginTop: 6 }}>{loading ? '—' : rooms.length + 2}</p>
+              <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>Currently booking</p>
+            </div>
+            <div className="flex items-center justify-center flex-shrink-0" style={{ width: 36, height: 36, background: '#f9fafb', borderRadius: 8, color: '#6b7280' }}>
+              <Users size={18} />
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Quick Book */}
-          <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-8">
-            <h3 className="text-lg font-semibold text-gray-900">Quick Book</h3>
-            <p className="text-sm text-gray-600 mt-3">
-              Browse available rooms and make a reservation
-            </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 16 }}>
+          <div style={{ borderRadius: 16, padding: 28, background: '#eff6ff', border: '1px solid #bfdbfe' }}>
+            <p className="font-semibold text-gray-900" style={{ fontSize: 15 }}>Quick Book</p>
+            <p style={{ fontSize: 13, color: '#6b7280', marginTop: 6 }}>Browse available rooms and make a reservation</p>
             <Link
               to="/rooms"
-              className="mt-6 flex items-center justify-center gap-2 w-full bg-slate-900 text-white text-sm font-semibold py-3.5 rounded-xl hover:bg-slate-800 transition-colors"
+              className="flex items-center justify-center gap-1.5 font-semibold text-white border-none cursor-pointer transition-colors hover:bg-gray-700"
+              style={{ marginTop: 20, width: '100%', padding: 11, background: '#1e293b', borderRadius: 10, fontSize: 13, textDecoration: 'none' }}
             >
-              Browse Rooms
-              <ArrowRight className="h-4 w-4" />
+              Browse Rooms <ArrowRight size={14} />
             </Link>
           </div>
 
-          {/* My Reservations */}
-          <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-gray-900">My Reservations</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              View and manage your upcoming bookings
-            </p>
+          <div style={{ borderRadius: 16, padding: 28, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+            <p className="font-semibold text-gray-900" style={{ fontSize: 15 }}>My Reservations</p>
+            <p style={{ fontSize: 13, color: '#6b7280', marginTop: 6 }}>View and manage your upcoming bookings</p>
             <Link
               to="/reservations"
-              className="mt-4 flex items-center justify-center gap-2 w-full bg-white text-gray-800 text-sm font-medium py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-center gap-1.5 font-medium cursor-pointer transition-colors hover:bg-gray-50"
+              style={{ marginTop: 12, width: '100%', padding: 10, background: '#fff', color: '#111', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 13, textDecoration: 'none' }}
             >
-              View Reservations
-              <ArrowRight className="h-4 w-4" />
+              View Reservations <ArrowRight size={14} />
             </Link>
           </div>
         </div>
 
         {/* Popular Rooms */}
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+        <div className="bg-white border border-gray-200 overflow-hidden" style={{ borderRadius: 12 }}>
+          <div className="flex justify-between items-center" style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6' }}>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Most Popular Rooms
-              </h3>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Rooms with the most active bookings
-              </p>
+              <h3 className="font-semibold text-gray-900" style={{ fontSize: 15 }}>Most Popular Rooms</h3>
+              <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>Rooms with the most active bookings</p>
             </div>
-            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-gray-600" />
+            <div className="flex items-center justify-center" style={{ width: 36, height: 36, background: '#f9fafb', borderRadius: 8, color: '#6b7280' }}>
+              <TrendingUp size={18} />
             </div>
           </div>
 
-          <div className="px-6 py-5">
+          <div>
             {loading ? (
-              <div className="space-y-3">
+              <div style={{ padding: '0 24px' }}>
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-14 bg-gray-50 rounded-lg animate-pulse" />
+                  <div key={i} style={{ height: 56, background: '#f9fafb', borderRadius: 8, margin: '12px 0' }} className="animate-pulse" />
                 ))}
               </div>
             ) : popularRooms.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="h-10 w-10 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Building2 className="h-4 w-4 text-gray-300" />
+              <div className="text-center" style={{ padding: '32px 24px' }}>
+                <div className="mx-auto mb-3 flex items-center justify-center" style={{ width: 40, height: 40, background: '#f9fafb', borderRadius: '50%' }}>
+                  <Building2 size={16} className="text-gray-300" />
                 </div>
-                <p className="text-sm text-gray-400">
-                  No rooms available yet. Check back soon.
-                </p>
+                <p style={{ fontSize: 13, color: '#9ca3af' }}>No rooms available yet. Check back soon.</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div>
                 {popularRooms.map((room, index) => (
                   <Link
                     key={room.id}
                     to={`/rooms/${room.id}`}
-                    className="flex items-center gap-4 p-3.5 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group"
+                    className="flex items-center transition-colors hover:bg-gray-50"
+                    style={{ gap: 12, padding: '14px 24px', borderBottom: '1px solid #f3f4f6', textDecoration: 'none', cursor: 'pointer' }}
                   >
-                    <div className="h-9 w-9 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-center text-sm font-semibold text-gray-400 group-hover:border-blue-100 group-hover:text-blue-500 transition-colors flex-shrink-0">
+                    <div className="flex items-center justify-center font-semibold flex-shrink-0" style={{ width: 34, height: 34, background: '#f9fafb', border: '1px solid #f3f4f6', borderRadius: 8, fontSize: 12, color: '#9ca3af' }}>
                       {index + 1}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {room.name}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {room.type} · Capacity: {room.capacity}
-                      </p>
+                    <div className="flex-1" style={{ minWidth: 0 }}>
+                      <p className="font-medium text-gray-900 truncate" style={{ fontSize: 13 }}>{room.name}</p>
+                      <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>{room.type} · Capacity: {room.capacity}</p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">
-                        {room.bookingCount} bookings
-                      </span>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {room.building || 'Library Building'}
-                      </p>
+                      <span className="font-medium" style={{ fontSize: 11, background: '#f3f4f6', color: '#6b7280', padding: '3px 10px', borderRadius: 20 }}>{room.bookingCount} bookings</span>
+                      <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>{room.building || 'Library Building'}</p>
                     </div>
                   </Link>
                 ))}
@@ -296,12 +244,13 @@ export default function Dashboard() {
         </div>
 
         {/* Sign out */}
-        <div className="flex justify-center pb-4">
+        <div className="flex justify-center" style={{ paddingBottom: 8 }}>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 bg-white px-4 py-2 rounded-lg hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all"
+            className="flex items-center cursor-pointer transition-all hover:text-red-500 hover:border-red-200"
+            style={{ gap: 6, fontSize: 13, color: '#9ca3af', background: '#fff', border: '1px solid #e5e7eb', padding: '7px 16px', borderRadius: 8 }}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut size={14} />
             Sign out
           </button>
         </div>

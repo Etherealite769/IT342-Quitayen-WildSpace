@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Building2, Users, MapPin, Search, Filter, ArrowRight } from 'lucide-react';
-import bookingAPI from '../services/bookingService';
+import { useAuth } from '../../../shared/contexts/AuthContext';
+import { Building2, Users, MapPin, ArrowRight } from 'lucide-react';
+import bookingAPI from '../../booking/services/bookingService';
 import { toast } from 'sonner';
 
 interface Room {
@@ -52,8 +52,9 @@ export default function Rooms() {
       }));
       setRooms(enhancedRooms);
       setFilteredRooms(enhancedRooms);
-    } catch (error) {
-      toast.error('Failed to load rooms');
+    } catch (error: any) {
+      console.error('Failed to load rooms:', error);
+      toast.error(error.response?.data?.message || error.message || 'Failed to load rooms');
     } finally {
       setLoading(false);
     }
@@ -104,118 +105,91 @@ export default function Rooms() {
 
   if (!user) return null;
 
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedType('All');
+  };
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f0f2f5' }}>
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-8 h-14 flex items-center justify-between" style={{ margin: '0 auto' }}>
-          {/* Brand */}
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Building2 className="h-4 w-4 text-white" />
+    <div className="min-h-screen" style={{ background: '#f0f2f5' }}>
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200" style={{ height: 52 }}>
+        <div style={{ maxWidth: 960, width: '100%', margin: '0 auto', padding: '0 32px', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <div className="flex items-center justify-center text-white" style={{ width: 28, height: 28, background: '#2563eb', borderRadius: 8 }}>
+              <Building2 size={14} />
             </div>
-            <span className="text-base font-semibold text-gray-900 tracking-tight">
-              WildSpace
-            </span>
+            <span className="font-semibold text-gray-900" style={{ fontSize: 15 }}>WildSpace</span>
           </div>
 
-          {/* Links */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/dashboard"
-              className="text-gray-500 hover:text-gray-800 hover:bg-gray-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
-              to="/reservations"
-              className="text-gray-500 hover:text-gray-800 hover:bg-gray-50 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            >
-              My Reservations
-            </Link>
-            <Link
-              to="/rooms"
-              className="text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-medium"
-            >
-              Rooms
-            </Link>
+          <div className="hidden md:flex items-center" style={{ gap: 4 }}>
+            {(user.role === 'ADMIN' || user.role === 'admin') ? (
+              <Link to="/admin" className="text-sm font-medium rounded-lg" style={{ padding: '6px 12px', color: '#2563eb', background: '#eff6ff', textDecoration: 'none' }}>Admin Dashboard</Link>
+            ) : (
+              <>
+                <Link to="/" className="text-sm font-medium rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors" style={{ padding: '6px 12px', color: '#6b7280', textDecoration: 'none' }}>Dashboard</Link>
+                <Link to="/reservations" className="text-sm font-medium rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors" style={{ padding: '6px 12px', color: '#6b7280', textDecoration: 'none' }}>My Reservations</Link>
+                <Link to="/rooms" className="text-sm font-medium rounded-lg" style={{ padding: '6px 12px', color: '#2563eb', background: '#eff6ff', textDecoration: 'none' }}>Rooms</Link>
+              </>
+            )}
           </div>
 
-          {/* User */}
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <div className="flex items-center justify-center text-white font-semibold" style={{ width: 32, height: 32, borderRadius: '50%', background: '#2563eb', fontSize: 13 }}>
               {user.fullName.charAt(0).toUpperCase()}
             </div>
-            <span className="text-sm font-medium text-gray-700 hidden sm:block">
-              {user.fullName}
-            </span>
+            <span className="hidden sm:block font-medium" style={{ fontSize: 13, color: '#6b7280' }}>{user.fullName}</span>
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-8 py-10" style={{ margin: '0 auto' }}>
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Browse Rooms</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Find the perfect space for your needs
-          </p>
-        </div>
+      {/* Main */}
+      <main style={{ maxWidth: 960, width: '100%', margin: '0 auto', padding: '32px' }}>
+        <div className="font-semibold text-gray-900" style={{ fontSize: 22, marginBottom: 4 }}>Browse rooms</div>
+        <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 24 }}>Find the perfect space for your needs</div>
 
-        {/* Search & Filter */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search rooms..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
-              />
-            </div>
-            
-            {/* Type Filter */}
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="pl-10 pr-8 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 bg-white appearance-none cursor-pointer"
-              >
-                {roomTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
+        {/* Filter Bar */}
+        <div className="bg-white border border-gray-200 flex items-center" style={{ borderRadius: 12, padding: '16px 20px', gap: 12, marginBottom: 16 }}>
+          <div style={{ flex: 1 }}>
+            <input
+              type="text"
+              placeholder="Search rooms by name, building, or type..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full border border-gray-200"
+              style={{ padding: '9px 12px', borderRadius: 8, fontSize: 13, background: '#fff', color: '#111827', fontFamily: 'inherit', outline: 'none', transition: 'border-color 0.15s' }}
+            />
           </div>
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="border border-gray-200"
+            style={{ padding: '9px 16px', borderRadius: 8, fontSize: 13, background: '#fff', color: '#111827', cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
+          >
+            {roomTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
         </div>
 
         {/* Results Count */}
-        <p className="text-sm text-gray-600 mb-6">
+        <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
           Showing {filteredRooms.length} of {rooms.length} rooms
-        </p>
+        </div>
 
         {/* Loading */}
         {loading && (
-          <div className="text-center py-12">
-            <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
-            <p className="text-gray-600 mt-4">Loading rooms...</p>
+          <div className="text-center" style={{ padding: '48px 20px' }}>
+            <div className="animate-spin" style={{ width: 32, height: 32, border: '2px solid #2563eb', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto' }}></div>
+            <p style={{ fontSize: 14, color: '#6b7280', marginTop: 16 }}>Loading rooms...</p>
           </div>
         )}
 
         {/* Empty State */}
         {!loading && filteredRooms.length === 0 && (
-          <div className="text-center py-12 bg-white border border-gray-200 rounded-xl">
-            <Building2 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600">No rooms found matching your criteria</p>
-            <button
-              onClick={() => {setSearchQuery(''); setSelectedType('All');}}
-              className="mt-4 text-blue-600 text-sm font-medium hover:underline"
-            >
+          <div className="bg-white border border-gray-200 text-center" style={{ borderRadius: 12, padding: '48px 20px' }}>
+            <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 12 }}>No rooms found matching your criteria</p>
+            <button onClick={clearFilters} className="border-none cursor-pointer" style={{ fontSize: 13, color: '#2563eb', background: 'none' }}>
               Clear filters
             </button>
           </div>
@@ -223,74 +197,49 @@ export default function Rooms() {
 
         {/* Rooms Grid */}
         {!loading && filteredRooms.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
             {filteredRooms.map((room) => (
-              <div
-                key={room.id}
-                className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow"
-              >
-                {/* Image */}
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={room.imageUrl}
-                    alt={room.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800';
-                    }}
-                  />
-                  <div className="absolute top-3 right-3">
-                    <span className="bg-slate-900 text-white text-xs font-medium px-3 py-1 rounded-full">
-                      {room.type}
-                    </span>
+                <div key={room.id} className="bg-white border border-gray-200 overflow-hidden" style={{ borderRadius: 12, transition: 'box-shadow 0.15s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'}
+                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                >
+                  <div className="relative overflow-hidden" style={{ height: 160, background: '#f3f4f6' }}>
+                    <img
+                      src={room.imageUrl}
+                      alt={room.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                    <span className="font-medium" style={{ position: 'absolute', top: 10, right: 10, background: '#0f172a', color: '#fff', fontSize: 11, padding: '4px 10px', borderRadius: 20 }}>{room.type}</span>
+                  </div>
+                  <div style={{ padding: 18 }}>
+                    <div className="font-semibold text-gray-900" style={{ fontSize: 15, marginBottom: 3 }}>{room.name}</div>
+                    <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 12 }}>{room.id}</div>
+                    <div className="flex flex-col" style={{ gap: 7, marginBottom: 12 }}>
+                      <div className="flex items-center" style={{ gap: 7, fontSize: 13, color: '#4b5563' }}>
+                        <Users size={16} className="flex-shrink-0" style={{ color: '#9ca3af' }} />
+                        Capacity: {room.capacity} people
+                      </div>
+                      <div className="flex items-center" style={{ gap: 7, fontSize: 13, color: '#4b5563' }}>
+                        <MapPin size={16} className="flex-shrink-0" style={{ color: '#9ca3af' }} />
+                        {room.building}, Floor {room.floor}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap" style={{ gap: 6, marginBottom: 14 }}>
+                      {room.amenities?.map((amenity) => (
+                        <span key={amenity} className="font-medium" style={{ fontSize: 11, background: '#f3f4f6', color: '#374151', padding: '4px 10px', borderRadius: 6 }}>{amenity}</span>
+                      ))}
+                    </div>
+                    <Link
+                      to={`/rooms/${room.id}`}
+                      className="w-full flex items-center justify-center font-semibold border-none cursor-pointer transition-colors"
+                      style={{ padding: 10, background: '#0f172a', color: '#fff', borderRadius: 10, fontSize: 13, gap: 6, textDecoration: 'none' }}
+                    >
+                      View details <ArrowRight size={14} />
+                    </Link>
                   </div>
                 </div>
-
-                {/* Content */}
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900">{room.name}</h3>
-                  <p className="text-sm text-gray-500 mt-1">{room.id}</p>
-
-                  {/* Details */}
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Users className="h-4 w-4" />
-                      <span>Capacity: {room.capacity} people</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="h-4 w-4" />
-                      <span>{room.building}, Floor {room.floor}</span>
-                    </div>
-                  </div>
-
-                  {/* Amenities */}
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {room.amenities?.slice(0, 2).map((amenity) => (
-                      <span
-                        key={amenity}
-                        className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-md"
-                      >
-                        {amenity}
-                      </span>
-                    ))}
-                    {room.amenities && room.amenities.length > 2 && (
-                      <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-md">
-                        +{room.amenities.length - 2} more
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Button */}
-                  <Link
-                    to={`/rooms/${room.id}`}
-                    className="mt-5 w-full flex items-center justify-center gap-2 bg-slate-900 text-white text-sm font-semibold py-3 rounded-xl hover:bg-slate-800 transition-colors"
-                  >
-                    View Details
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </main>
