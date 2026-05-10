@@ -57,6 +57,11 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/rooms").permitAll()
+                .requestMatchers("/api/rooms/available").permitAll()
+                .requestMatchers("/api/rooms/type/**").permitAll()
+                .requestMatchers("/api/rooms/building/**").permitAll()
+                .requestMatchers("/api/rooms/{id}").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

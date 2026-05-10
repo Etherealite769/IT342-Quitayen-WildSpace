@@ -85,6 +85,13 @@ public class BookingService {
             .collect(Collectors.toList());
     }
 
+    public List<BookingResponse> getAllBookings() {
+        return bookingRepository.findAll()
+            .stream()
+            .map(this::mapToResponse)
+            .collect(Collectors.toList());
+    }
+
     public Optional<BookingResponse> getBookingById(String id) {
         return bookingRepository.findById(id)
             .map(this::mapToResponse);

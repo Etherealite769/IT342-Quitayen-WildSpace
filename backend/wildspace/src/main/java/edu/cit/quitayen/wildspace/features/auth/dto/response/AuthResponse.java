@@ -30,12 +30,14 @@ public class AuthResponse {
         private String email;
         private String fullName;
         private String studentId;
+        private String role;
 
-        public UserDto(String id, String email, String fullName, String studentId) {
+        public UserDto(String id, String email, String fullName, String studentId, String role) {
             this.id = id;
             this.email = email;
             this.fullName = fullName;
             this.studentId = studentId;
+            this.role = role;
         }
 
         public String getId() {
@@ -52,6 +54,10 @@ public class AuthResponse {
 
         public String getStudentId() {
             return studentId;
+        }
+
+        public String getRole() {
+            return role;
         }
     }
 }
