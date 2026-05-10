@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import { Building2, Mail, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -294,7 +294,7 @@ export default function Login() {
             <div className="login-logo-ring">
               <Building2 size={30} />
             </div>
-            <h1 className="login-title">Welcome back</h1>
+            <h1 className="login-title">WildSpace</h1>
             <p className="login-subtitle">Enter your credentials to access your account</p>
           </div>
 
